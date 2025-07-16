@@ -1,5 +1,11 @@
-// 农历转换工具函数
-export const lunarCalendar = {
+/**
+ * 农历转换工具模块
+ */
+
+/**
+ * 农历日历工具对象
+ */
+const lunarCalendar = {
   // 农历数据 (1900-2100年)
   lunarInfo: [
     0x04bd8, 0x04ae0, 0x0a570, 0x054d5, 0x0d260, 0x0d950, 0x16554, 0x056a0, 0x09ad0, 0x055d2,
@@ -31,7 +37,11 @@ export const lunarCalendar = {
          '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
          '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十'],
 
-  // 获取农历年天数
+  /**
+   * 获取农历年天数
+   * @param {number} year - 年份
+   * @returns {number} 天数
+   */
   lunarYearDays: function(year) {
     let sum = 348;
     for (let i = 0x8000; i > 0x8; i >>= 1) {
@@ -40,7 +50,11 @@ export const lunarCalendar = {
     return sum + this.leapDays(year);
   },
 
-  // 获取闰月天数
+  /**
+   * 获取闰月天数
+   * @param {number} year - 年份
+   * @returns {number} 天数
+   */
   leapDays: function(year) {
     if (this.leapMonth(year)) {
       return (this.lunarInfo[year - 1900] & 0x10000) ? 30 : 29;
@@ -48,17 +62,32 @@ export const lunarCalendar = {
     return 0;
   },
 
-  // 获取闰月月份
+  /**
+   * 获取闰月月份
+   * @param {number} year - 年份
+   * @returns {number} 月份
+   */
   leapMonth: function(year) {
     return this.lunarInfo[year - 1900] & 0xf;
   },
 
-  // 获取农历月天数
+  /**
+   * 获取农历月天数
+   * @param {number} year - 年份
+   * @param {number} month - 月份
+   * @returns {number} 天数
+   */
   monthDays: function(year, month) {
     return (this.lunarInfo[year - 1900] & (0x10000 >> month)) ? 30 : 29;
   },
 
-  // 公历转农历
+  /**
+   * 公历转农历
+   * @param {number} year - 公历年
+   * @param {number} month - 公历月
+   * @param {number} day - 公历日
+   * @returns {Object|null} 农历日期对象
+   */
   solar2lunar: function(year, month, day) {
     if (year < 1900 || year > 2100) return null;
 
@@ -131,3 +160,5 @@ export const lunarCalendar = {
     };
   }
 };
+
+export default lunarCalendar;

@@ -1,26 +1,29 @@
-import { api } from './src/handlers/api';
-import { admin } from './src/handlers/admin';
-import { loginPage } from './src/views/login';
-import { checkExpiringSubscriptions } from './src/cron';
+// 订阅续期通知系统 - 主入口文件
+import { handleRequest as handleLoginRequest } from './src/views/login.js';
+import { handleRequest as handleAdminRequest } from './src/handlers/admin.js';
+import { handleRequest as handleApiRequest } from './src/handlers/api.js';
+import { checkExpiringSubscriptions } from './src/cron.js';
+import { getConfig } from './src/kv/config.js';
 
-async function handleRequest(request, env, ctx) {
-  const url = new URL(request.url);
+export default {
+  async fetch(request, env, ctx) {
+    const url = new URL(request.url);
 
-  // 添加调试页面
-  if (url.pathname === '/debug') {
-    try {
-      const config = await env.SUBSCRIPTIONS_KV.get('config').then(data => data ? JSON.parse(data) : {});
-      const debugInfo = {
-        timestamp: new Date().toISOString(),
-        pathname: url.pathname,
-        kvBinding: !!env.SUBSCRIPTIONS_KV,
-        configExists: !!config,
-        adminUsername: config.ADMIN_USERNAME,
-        hasJwtSecret: !!config.JWT_SECRET,
-        jwtSecretLength: config.JWT_SECRET ? config.JWT_SECRET.length : 0
-      };
+    // 添加调试页面
+    if (url.pathname === '/debug') {
+      try {
+        const config = await getConfig(env);
+        const debugInfo = {
+          timestamp: new Date().toISOString(),
+          pathname: url.pathname,
+          kvBinding: !!env.SUBSCRIPTIONS_KV,
+          configExists: !!config,
+          adminUsername: config.ADMIN_USERNAME,
+          hasJwtSecret: !!config.JWT_SECRET,
+          jwtSecretLength: config.JWT_SECRET ? config.JWT_SECRET.length : 0
+        };
 
-      return new Response(`
+        return new Response(`
 <!DOCTYPE html>
 <html>
 <head>
@@ -56,30 +59,24 @@ async function handleRequest(request, env, ctx) {
   </div>
 </body>
 </html>`, {
-        headers: { 'Content-Type': 'text/html; charset=utf-8' }
-      });
-    } catch (error) {
-      return new Response(`调试页面错误: ${error.message}`, {
-        status: 500,
-        headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-      });
+          headers: { 'Content-Type': 'text/html; charset=utf-8' }
+        });
+      } catch (error) {
+        return new Response(`调试页面错误: ${error.message}`, {
+          status: 500,
+          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+        });
+      }
     }
-  }
 
-  if (url.pathname.startsWith('/api')) {
-    return api.handleRequest(request, env, ctx);
-  } else if (url.pathname.startsWith('/admin')) {
-    return admin.handleRequest(request, env, ctx);
-  } else {
-    return new Response(loginPage, {
-      headers: { 'Content-Type': 'text/html; charset=utf-8' }
-    });
-  }
-}
-
-export default {
-  async fetch(request, env, ctx) {
-    return handleRequest(request, env, ctx);
+    // 路由分发
+    if (url.pathname.startsWith('/api')) {
+      return handleApiRequest(request, env, ctx);
+    } else if (url.pathname.startsWith('/admin')) {
+      return handleAdminRequest(request, env, ctx);
+    } else {
+      return handleLoginRequest(request, env, ctx);
+    }
   },
 
   async scheduled(event, env, ctx) {

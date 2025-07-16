@@ -1,17 +1,39 @@
+/**
+ * 订阅管理模块
+ */
+
+/**
+ * 获取所有订阅
+ * @param {Object} env - Cloudflare环境对象
+ * @returns {Promise<Array>} 订阅数组
+ */
 export async function getAllSubscriptions(env) {
   try {
     const data = await env.SUBSCRIPTIONS_KV.get('subscriptions');
     return data ? JSON.parse(data) : [];
   } catch (error) {
+    console.error('[订阅] 获取所有订阅失败:', error);
     return [];
   }
 }
 
+/**
+ * 获取单个订阅
+ * @param {string} id - 订阅ID
+ * @param {Object} env - Cloudflare环境对象
+ * @returns {Promise<Object|null>} 订阅对象，不存在则返回null
+ */
 export async function getSubscription(id, env) {
   const subscriptions = await getAllSubscriptions(env);
-  return subscriptions.find(s => s.id === id);
+  return subscriptions.find(s => s.id === id) || null;
 }
 
+/**
+ * 创建订阅
+ * @param {Object} subscription - 订阅对象
+ * @param {Object} env - Cloudflare环境对象
+ * @returns {Promise<Object>} 创建结果
+ */
 export async function createSubscription(subscription, env) {
   try {
     const subscriptions = await getAllSubscriptions(env);
@@ -57,10 +79,18 @@ export async function createSubscription(subscription, env) {
 
     return { success: true, subscription: newSubscription };
   } catch (error) {
+    console.error('[订阅] 创建订阅失败:', error);
     return { success: false, message: '创建订阅失败' };
   }
 }
 
+/**
+ * 更新订阅
+ * @param {string} id - 订阅ID
+ * @param {Object} subscription - 订阅对象
+ * @param {Object} env - Cloudflare环境对象
+ * @returns {Promise<Object>} 更新结果
+ */
 export async function updateSubscription(id, subscription, env) {
   try {
     const subscriptions = await getAllSubscriptions(env);
@@ -109,10 +139,17 @@ export async function updateSubscription(id, subscription, env) {
 
     return { success: true, subscription: subscriptions[index] };
   } catch (error) {
+    console.error('[订阅] 更新订阅失败:', error);
     return { success: false, message: '更新订阅失败' };
   }
 }
 
+/**
+ * 删除订阅
+ * @param {string} id - 订阅ID
+ * @param {Object} env - Cloudflare环境对象
+ * @returns {Promise<Object>} 删除结果
+ */
 export async function deleteSubscription(id, env) {
   try {
     const subscriptions = await getAllSubscriptions(env);
@@ -126,10 +163,18 @@ export async function deleteSubscription(id, env) {
 
     return { success: true };
   } catch (error) {
+    console.error('[订阅] 删除订阅失败:', error);
     return { success: false, message: '删除订阅失败' };
   }
 }
 
+/**
+ * 切换订阅状态
+ * @param {string} id - 订阅ID
+ * @param {boolean} isActive - 是否激活
+ * @param {Object} env - Cloudflare环境对象
+ * @returns {Promise<Object>} 操作结果
+ */
 export async function toggleSubscriptionStatus(id, isActive, env) {
   try {
     const subscriptions = await getAllSubscriptions(env);
@@ -149,6 +194,7 @@ export async function toggleSubscriptionStatus(id, isActive, env) {
 
     return { success: true, subscription: subscriptions[index] };
   } catch (error) {
+    console.error('[订阅] 更新订阅状态失败:', error);
     return { success: false, message: '更新订阅状态失败' };
   }
 }

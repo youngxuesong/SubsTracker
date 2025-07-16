@@ -1,3 +1,10 @@
+/**
+ * 登录页面视图
+ */
+
+/**
+ * 登录页面HTML模板
+ */
 export const loginPage = `
 <!DOCTYPE html>
 <html>
@@ -105,3 +112,16 @@ export const loginPage = `
 </body>
 </html>
 `;
+
+/**
+ * 处理登录页面请求
+ * @param {Request} request - 请求对象
+ * @param {Object} env - Cloudflare环境对象
+ * @param {Object} ctx - 上下文对象
+ * @returns {Response} 响应对象
+ */
+export async function handleRequest(request, env, ctx) {
+  return new Response(loginPage, {
+    headers: { 'Content-Type': 'text/html; charset=utf-8' }
+  });
+}

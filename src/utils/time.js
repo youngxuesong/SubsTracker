@@ -1,4 +1,13 @@
-// 时区工具函数
+/**
+ * 时间工具函数模块
+ */
+
+/**
+ * 格式化北京时间
+ * @param {Date} date - 日期对象，默认为当前时间
+ * @param {string} format - 格式化选项: 'full'(完整), 'date'(仅日期), 'datetime'(日期和时间)
+ * @returns {string} 格式化后的日期字符串
+ */
 export function formatBeijingTime(date = new Date(), format = 'full') {
   if (format === 'date') {
     return date.toLocaleDateString('zh-CN', {

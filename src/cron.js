@@ -1,9 +1,18 @@
-import { getAllSubscriptions, updateSubscription, getSubscription } from './kv/subscriptions';
-import { getConfig } from './kv/config';
-import { formatBeijingTime } from './utils/time';
-import { lunarCalendar } from './utils/lunarCalendar';
-import { sendNotificationToAllChannels } from './notifications';
+/**
+ * 定时任务模块
+ */
 
+import { getAllSubscriptions } from './kv/subscriptions.js';
+import { getConfig } from './kv/config.js';
+import { sendNotificationToAllChannels } from './notifications/index.js';
+import { formatBeijingTime } from './utils/time.js';
+import lunarCalendar from './utils/lunarCalendar.js';
+
+/**
+ * 检查即将到期的订阅
+ * @param {Object} env - Cloudflare环境对象
+ * @returns {Promise<void>}
+ */
 export async function checkExpiringSubscriptions(env) {
   try {
     const now = new Date();
