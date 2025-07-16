@@ -5,6 +5,10 @@ import { formatBeijingTime } from '../utils/time';
 import { sendNotificationToAllChannels } from '../notifications';
 import { lunarCalendar } from '../utils/lunarCalendar';
 
+export async function handleRequest(request, env, ctx) {
+  return api.handleRequest(request, env, ctx);
+}
+
 export const api = {
   async handleRequest(request, env, ctx) {
     const url = new URL(request.url);

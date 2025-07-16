@@ -2,40 +2,7 @@
  * JWT工具模块
  */
 
-/**
- * CryptoJS模拟实现，用于生成HMAC-SHA256签名
- */
-const CryptoJS = {
-  /**
-   * 使用HMAC-SHA256算法生成签名
-   * @param {string} message - 要签名的消息
-   * @param {string} key - 密钥
-   * @returns {Promise<string>} 签名结果
-   */
-  HmacSHA256: function(message, key) {
-    const keyData = new TextEncoder().encode(key);
-    const messageData = new TextEncoder().encode(message);
-
-    return Promise.resolve().then(() => {
-      return crypto.subtle.importKey(
-        "raw",
-        keyData,
-        { name: "HMAC", hash: {name: "SHA-256"} },
-        false,
-        ["sign"]
-      );
-    }).then(cryptoKey => {
-      return crypto.subtle.sign(
-        "HMAC",
-        cryptoKey,
-        messageData
-      );
-    }).then(buffer => {
-      const hashArray = Array.from(new Uint8Array(buffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    });
-  }
-};
+import { CryptoJS } from '../../index.js';
 
 /**
  * 生成JWT令牌
@@ -60,7 +27,7 @@ export async function generateJWT(username, secret) {
  * 验证JWT令牌
  * @param {string} token - JWT令牌
  * @param {string} secret - 密钥
- * @returns {Promise<Object|null>} 验证成功返回payload，失败返回null
+ * @returns {Promise<object|null>} 验证成功返回payload，失败返回null
  */
 export async function verifyJWT(token, secret) {
   try {
@@ -94,10 +61,10 @@ export async function verifyJWT(token, secret) {
 }
 
 /**
- * 从Cookie字符串中获取指定键的值
+ * 从Cookie中获取指定键的值
  * @param {string} cookieString - Cookie字符串
  * @param {string} key - 键名
- * @returns {string|null} Cookie值，不存在则返回null
+ * @returns {string|null} Cookie值或null
  */
 export function getCookieValue(cookieString, key) {
   if (!cookieString) return null;

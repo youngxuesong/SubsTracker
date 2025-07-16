@@ -5,6 +5,36 @@ import { handleRequest as handleApiRequest } from './src/handlers/api.js';
 import { checkExpiringSubscriptions } from './src/cron.js';
 import { getConfig } from './src/kv/config.js';
 
+// 添加CryptoJS实现，确保JWT功能正常工作
+const CryptoJS = {
+  HmacSHA256: function(message, key) {
+    const keyData = new TextEncoder().encode(key);
+    const messageData = new TextEncoder().encode(message);
+
+    return Promise.resolve().then(() => {
+      return crypto.subtle.importKey(
+        "raw",
+        keyData,
+        { name: "HMAC", hash: {name: "SHA-256"} },
+        false,
+        ["sign"]
+      );
+    }).then(cryptoKey => {
+      return crypto.subtle.sign(
+        "HMAC",
+        cryptoKey,
+        messageData
+      );
+    }).then(buffer => {
+      const hashArray = Array.from(new Uint8Array(buffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    });
+  }
+};
+
+// 导出CryptoJS供其他模块使用
+export { CryptoJS };
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
